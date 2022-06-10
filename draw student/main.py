@@ -1,13 +1,8 @@
+from email.quoprimime import decode
 import numpy as np
 import tkinter as tk
-from tkinter import ttk
-from tkinter.filedialog import asksaveasfile
-
-def save(random):
-    files = [('Fichier Texte', '.txt')]
-    file = asksaveasfile(filetypes = files, defaultextension = files)
-    file.write(random)
-    file.close
+from tkinter import Button, ttk
+from tkinter import filedialog as fd
 
 def choice(array):
     frame = tk.Tk()
@@ -20,7 +15,7 @@ def choice(array):
     inputtxt.pack()
     def printInput1():
         x = int(inputtxt.get(1.0, "end-1c"))
-        random = str(np.random.choice(array, size=x, replace=False))
+        random = ", ".join(np.random.choice(array, size=x, replace=False))
         frame.destroy()
         if x > len(array):
             frm = ttk.Frame(tk.Tk(), padding=10)
@@ -50,10 +45,45 @@ def choice(array):
     printButton.pack()
     frame.mainloop()
 
-def main():
+def save(random):
+    files = [('Fichier Texte', '.txt')]
+    file = fd.asksaveasfile(filetypes = files, defaultextension = files)
+    file.write(random)
+    file.close
+    
+def select_file():
+    filetypes = (
+        ('Fichier texte', '*.txt'),
+    )
+    filename = fd.askopenfilename(
+        title='Séléctionné un fichier',
+        initialdir='/',
+        filetypes=filetypes)
+
+    def tirage(): 
+        def remove():
+            file = open(filename).read()
+            if file.find(",") != -1:
+                return open(filename).read().replace(",", "")
+            else: 
+                return file
+            
+            
+        array = list(map(str, remove().strip().split()))
+        if not array: 
+            frm = ttk.Frame(tk.Tk(), padding=10)
+            frm.grid()
+            tk.Label(frm, text="Votre fichier ne contient rien").grid(column=0, row=0)
+            select_file()
+        else: 
+            choice(array)
+    tirage()
+
+def jsp():
+    
     frame = tk.Tk()
     frame.title("Exercice Math")
-    lbl = tk.Label(frame, text = "Bonjour Mr. Guary :)\nComment se nomme vos nouveaux élèves ?")
+    lbl = tk.Label(frame, text = "Du comment se nomme vos nouveaux élèves ?")
     lbl.pack()
     inputtxt = tk.Text(frame,
                         height = 5,
@@ -75,4 +105,19 @@ def main():
                         command = printInput)
     printButton.pack()
     frame.mainloop()
+
+def main():
+    frm = tk.Tk()
+    def ikd():
+        frm.destroy()
+        jsp()
+    def ok():
+        frm.destroy()
+        select_file()
+    frm.grid()
+    tk.Label(frm, text="Bonjour Mr. Guary :)\nVoulez vous récupérer les élèves à partir d'un fichier\nOu bien de les écrire vous même").grid(column=0, row=0)
+    file = ttk.Button(frm, text="Sélectionner un fichier", command=ok).grid(column=1, row=0)
+    name = ttk.Button(frm, text="Entrer les noms", command=ikd).grid(column=1, row=1)
+    ttk.Button(frm, text="Quitter", command=exit).grid(column=1, row=2)
+    frm.mainloop()
 main()
